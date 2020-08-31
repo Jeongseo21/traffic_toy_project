@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+
+<h2>도로 교통과 개인 업무 목록</h2>
+<br>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-warning alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            {{ message }}
+        </div>        
+    {% endfor %}
+{% endif %}
+
+<form class="form-inline my-2 my-lg-0" method="POST">
+    {% csrf_token %} <!-- cross site request forgery -->
+  <input class="form-control mr-sm-2" type="search" placeholder="Issue ID/관련 업무" aria-label="Search" name="item">
+  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">add</button>
+</form>
+<br>
+
+<table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">Issue ID/업무 내용</th>
+        <th scope="col">완료</th>
+        <th scope="col">삭제</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for value in all_items %}
+            {% if value.completed %}
+            <tr class="table-success">
+                <th scope="row">{{ value.id }}</th>
+                <td class="completed">{{ value.item }}</td>
+                <td><a href="{% url 'uncross' value.id %}">취소</a></td>
+                <td><a href="{% url 'delete' value.id %}">삭제</a></td>
+            </tr>
+            {% else %}
+            <tr class="table-warning">
+                <th scope="row">{{ value.id }}</th>
+                <td>{{ value.item }}</a></td>
+                <td ><a href="{% url 'cross' value.id %}">완료</a></td>
+                <td><a href="{% url 'delete' value.id %}">삭제</a></td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+<br>
+<hr>
+<h2>서울시 실시간 도로 돌발 상황 정보</h2>
+
+<br>
+
+{% for value in data %}
+Issue ID : {{ value.acc_id }} <br>
+발생 일자 : {{ value.occr_date }} <br>
+발생 시각 : {{ value.occr_time }} <br>
+    {% if value.acc_type == "A01" %}
+        <span style="color: red">상황 유형 : 교통사고</span> 
+    {% elif value.acc_type == "A02" %}
+        상황 유형 : 차량고장
+    {% elif value.acc_type == "A03" %}
+        <span style="color: red">상황 유형 : 보행사고</span>
+    {% elif value.acc_type == "A04" %}
+        <span style="color: brown;">상황 유형 : 공사</span>
+    {% elif value.acc_type == "A05" %}
+        상황 유형 : 낙하물
+    {% endif %}
+ <br>
+돌발 내용 : {{ value.acc_info }} <br>
+<hr>
+{% endfor %}
+
+<hr>
+
+
+<br>
+<br>
+{% endblock %}
+
